@@ -1,5 +1,5 @@
 <template>
-  <Renderer ref="renderer" shadow :orbit-ctrl="{ enableDamping: false }" resize="window">
+  <Renderer ref="renderer" antialias shadow :orbit-ctrl="{ enableDamping: false }" resize="window">
     <Camera :position="{ x: 2, y: 3, z: 2}" />
     <Scene background="#444444">
       <AmbientLight color="#ffffff" :intensity="0.2" />
