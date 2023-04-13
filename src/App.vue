@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-main>
-      <LoginDialog @mqttConnected="mqttSubscribe()" />
+      <LoginDialog v-if="!store.connected" />
       <Renderer
         ref="renderer"
         antialias
@@ -19,63 +19,69 @@
             :key="index"
           />
 
-          <GltfModel src="assets/apartment.gltf" @load="onReady" />
+          <GltfModel src="assets/apartment.gltf" @load="onModelLoaded" />
         </Scene>
       </Renderer>
     </v-main>
   </v-app>
 </template>
 
-<script>
+<script setup>
+import { ref } from "vue"
 import { client as mqttClient } from "@/mqtt"
 import CeilingLight from "./components/CeilingLight.vue"
 import LoginDialog from "./components/LoginDialog.vue"
-import devices from "./devices"
+import deviceList from "./devices"
+import { useMqttStore } from "@/stores/mqtt"
 
-export default {
-  components: {
-    CeilingLight,
-    LoginDialog,
-  },
-  data() {
-    return {
-      devices,
+const store = useMqttStore()
+const devices = ref(deviceList)
+
+mqttClient.onConnected = () => {
+  console.log("[MQTT] connected")
+  store.connected = true
+  mqttSubscribe()
+}
+
+mqttClient.onMessageArrived = (message) => {
+  try {
+    const { payloadString, topic } = message
+    const foundDevice = devices.value.find(
+      (device) => `${device.topic}/status` === topic
+    )
+    if (!foundDevice) return
+    const { state } = JSON.parse(payloadString)
+    foundDevice.state = state
+  } catch (error) {
+    console.warn(error)
+  }
+}
+
+mqttClient.onConnectionLost = (responseObject) => {
+  store.connected = false
+  if (responseObject.errorCode !== 0) {
+    console.error("[MQTT] Connection lost:" + responseObject.errorMessage)
+  }
+}
+
+const onModelLoaded = (model) => {
+  model.scene.traverse((object) => {
+    // Shadows
+    if (object.isMesh) {
+      const asArray = Array.isArray(object.material)
+        ? object.material
+        : [object.material]
+      asArray.forEach((mat) => (mat.metalness = 0))
+      object.castShadow = true
+      object.receiveShadow = true
     }
-  },
-  mounted() {
-    mqttClient.onMessageArrived = (message) => {
-      try {
-        const { payloadString, topic } = message
-        const foundDevice = this.devices.find(
-          (device) => `${device.topic}/status` === topic
-        )
-        if (!foundDevice) return
-        const { state } = JSON.parse(payloadString)
-        foundDevice.state = state
-      } catch (error) {
-        console.warn(error)
-      }
-    }
-  },
-  methods: {
-    onReady(model) {
-      model.scene.traverse((object) => {
-        if (object.isMesh) {
-          const asArray = Array.isArray(object.material)
-            ? object.material
-            : [object.material]
-          asArray.forEach((mat) => (mat.metalness = 0))
-          object.castShadow = true
-          object.receiveShadow = true
-        }
-      })
-    },
-    mqttSubscribe() {
-      devices.forEach(({ topic }) => {
-        mqttClient.subscribe(`${topic}/status`)
-      })
-    },
-  },
+  })
+}
+
+const mqttSubscribe = () => {
+  devices.value.forEach(({ topic }) => {
+    mqttClient.subscribe(`${topic}/status`)
+  })
 }
 </script>
 

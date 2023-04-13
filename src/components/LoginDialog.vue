@@ -1,9 +1,5 @@
 <template>
-  <v-dialog v-model="dialog" max-width="30rem">
-    <!-- <template v-slot:activator="{ props }">
-      <v-btn color="primary" v-bind="props"> Open Dialog </v-btn>
-    </template> -->
-
+  <v-dialog v-model="dialog" max-width="30rem" persistent>
     <v-card>
       <v-card-text>
         <v-form class="text-center" @submit.prevent="connect()">
@@ -29,37 +25,28 @@
   </v-dialog>
 </template>
 
-<script>
+<script setup>
+import { ref } from "vue"
 import { client as mqttClient } from "@/mqtt"
-const { VITE_MQTT_HOST, VITE_MQTT_PORT } = import.meta.env
-export default {
-  data() {
-    return {
-      dialog: true,
-      username: "",
-      password: "",
-      loading: false,
-    }
-  },
-  methods: {
-    connect() {
-      this.loading = true
-      mqttClient.connect({
-        onSuccess: this.onConnect,
-        userName: this.username,
-        password: this.password,
-        useSSL: true,
-        keepAliveInterval: 30,
-        reconnect: true,
-        // reconnectInterval: 10,
-      })
-    },
-    onConnect() {
-      console.log("[MQTT] connected")
-      this.loading = false
-      this.dialog = false
-      this.$emit("mqttConnected")
-    },
-  },
+
+const username = ref("")
+const password = ref("")
+const loading = ref(false)
+const dialog = ref(true)
+
+const connect = () => {
+  loading.value = true
+  mqttClient.connect({
+    onSuccess: onConnect,
+    userName: username.value,
+    password: password.value,
+    useSSL: true,
+    keepAliveInterval: 30,
+    reconnect: true,
+  })
+}
+const onConnect = () => {
+  loading.value = false
+  dialog.value = false
 }
 </script>

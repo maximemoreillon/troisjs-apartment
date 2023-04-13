@@ -8,9 +8,3 @@ export const client = new MQTT.Client(
   "/",
   "paho"
 )
-
-client.onConnectionLost = (responseObject) => {
-  if (responseObject.errorCode !== 0) {
-    console.log("[MQTT] Connection lost:" + responseObject.errorMessage)
-  }
-}
