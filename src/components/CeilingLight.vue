@@ -1,55 +1,47 @@
 <template>
-
-    <Sphere ref="box" :position="{ ...position}" :scale="{ x: scale, y: scale, z: scale }" @click="toggle()">
-        <BasicMaterial :color="on ? '#ffea00' : '#5c5400'" />
-    </Sphere>
-    <PointLight :position="position" cast-shadow ref="light" :intensity="intensity" />
-
+  <Sphere
+    ref="box"
+    :position="{ ...device.position }"
+    :scale="{ x: 0.08, y: 0.08, z: 0.08 }"
+    @click="toggle()"
+  >
+    <BasicMaterial :color="on ? '#ffea00' : '#5c5400'" />
+  </Sphere>
+  <PointLight
+    :position="device.position"
+    cast-shadow
+    ref="light"
+    :intensity="on ? 1 : 0"
+  />
 </template>
 
 <script>
+import * as MQTT from "paho-mqtt"
+import { client as mqttClient } from "@/mqtt"
 
 export default {
-    props: {
-        position: Object,
-    },
-    data(){
-        return {
-            on: false,
-            scale: 0.08,
-            intensity: 0,
-        }
-    },
-    methods: {
-        toggle(){
-            this.on = !this.on
-            if (this.on) {
-                this.smoothlyUpdate(1)
-            }
-            else {
-                this.smoothlyUpdate(0)
-            }
-        },
-        smoothlyUpdate(newVal){
+  props: {
+    device: Object,
+  },
+  data() {
+    return {}
+  },
 
-            const step = 0.05
-
-            const interval = setInterval( () => {
-                this.intensity += step * Math.sign(newVal - this.intensity)
-                console.log(this.intensity)
-                if (Math.abs(this.intensity - newVal) < 2 * step) {
-                    this.intensity = newVal
-                    clearInterval(interval)
-                }
-            }, 10)
-        }
+  methods: {
+    toggle() {
+      const message = new MQTT.Message(JSON.stringify({ state: "toggle" }))
+      message.destinationName = `${this.device.topic}/command`
+      mqttClient.send(message)
     },
-    mounted(){
-        const {light} = this.$refs.light
-        light.shadow.bias = -0.0001
-        
+  },
+  mounted() {
+    const { light } = this.$refs.light
+    light.shadow.bias = -0.0001
+  },
+  computed: {
+    on() {
+      return this.device.state === "on"
     },
-
+  },
 }
-
 </script>

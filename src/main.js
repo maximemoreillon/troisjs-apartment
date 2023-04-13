@@ -1,4 +1,9 @@
-import { createApp } from 'troisjs'
-import App from './App.vue'
+import { createApp } from "troisjs"
+import App from "./App.vue"
+import { registerPlugins } from "@/plugins"
 
-createApp(App).mount('#app')
+const app = createApp(App)
+
+registerPlugins(app)
+
+app.mount("#app")
