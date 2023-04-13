@@ -29,4 +29,24 @@ export default [
     },
     state: "off",
   },
+  // Corridor
+  {
+    topic: "/moreillon/light-d13efb",
+    position: {
+      x: -0.25,
+      y: 0.5,
+      z: -0.5,
+    },
+    state: "off",
+  },
+  // Entrance
+  {
+    topic: "/moreillon/light-c64739",
+    position: {
+      x: -0.25,
+      y: 0.5,
+      z: -1.5,
+    },
+    state: "off",
+  },
 ]
