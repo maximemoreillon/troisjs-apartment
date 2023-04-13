@@ -49,6 +49,9 @@ export default {
         userName: this.username,
         password: this.password,
         useSSL: true,
+        keepAliveInterval: 30,
+        reconnect: true,
+        // reconnectInterval: 10,
       })
     },
     onConnect() {
