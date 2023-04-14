@@ -2,7 +2,7 @@
   <v-dialog v-model="dialog" max-width="30rem" persistent>
     <v-card>
       <v-card-text>
-        <v-form class="text-center" @submit.prevent="connect()">
+        <v-form class="text-center" @submit.prevent="login()">
           <v-text-field
             prepend-icon="mdi-account"
             label="Username"
@@ -26,26 +26,53 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { ref, onMounted } from "vue"
 import { client as mqttClient } from "@/mqtt"
+import { useMqttStore } from "@/stores/mqtt"
+
+const store = useMqttStore()
 
 const username = ref("")
 const password = ref("")
 const loading = ref(false)
 const dialog = ref(true)
 
-const connect = () => {
+onMounted(() => {
+  if (!store.connected) connect()
+})
+
+const login = () => {
   loading.value = true
-  mqttClient.connect({
-    onSuccess: onConnect,
-    userName: username.value,
+
+  const localStorageContent = JSON.stringify({
+    username: username.value,
     password: password.value,
+  })
+  localStorage.setItem("mqtt", localStorageContent)
+
+  connect()
+}
+
+const connect = () => {
+  const localStorageContent = localStorage.getItem("mqtt")
+  if (!localStorageContent) {
+    loading.value = false
+    console.log("credentials do not exist")
+    return
+  }
+  console.log("Logging in")
+  const { username, password } = JSON.parse(localStorageContent)
+  mqttClient.connect({
+    onSuccess,
+    userName: username,
+    password: password,
     useSSL: true,
     keepAliveInterval: 30,
     reconnect: true,
   })
 }
-const onConnect = () => {
+
+const onSuccess = () => {
   loading.value = false
   dialog.value = false
 }
