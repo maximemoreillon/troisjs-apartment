@@ -42,8 +42,6 @@ onMounted(() => {
 })
 
 const login = () => {
-  loading.value = true
-
   const localStorageContent = JSON.stringify({
     username: username.value,
     password: password.value,
@@ -54,16 +52,17 @@ const login = () => {
 }
 
 const connect = () => {
+  loading.value = true
   const localStorageContent = localStorage.getItem("mqtt")
   if (!localStorageContent) {
     loading.value = false
     console.log("credentials do not exist")
     return
   }
-  console.log("Logging in")
   const { username, password } = JSON.parse(localStorageContent)
   mqttClient.connect({
     onSuccess,
+    onFailure,
     userName: username,
     password: password,
     useSSL: true,
@@ -75,5 +74,9 @@ const connect = () => {
 const onSuccess = () => {
   loading.value = false
   dialog.value = false
+}
+
+const onFailure = () => {
+  loading.value = false
 }
 </script>
