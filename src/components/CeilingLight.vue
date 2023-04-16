@@ -29,7 +29,8 @@ export default {
 
   methods: {
     toggle() {
-      const message = new MQTT.Message(JSON.stringify({ state: "toggle" }))
+      const state = this.on ? "off" : "on"
+      const message = new MQTT.Message(JSON.stringify({ state }))
       message.destinationName = `${this.device.topic}/command`
       mqttClient.send(message)
     },

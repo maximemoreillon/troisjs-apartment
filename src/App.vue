@@ -51,7 +51,7 @@ mqttClient.onMessageArrived = (message) => {
     )
     if (!foundDevice) return
     const { state } = JSON.parse(payloadString)
-    foundDevice.state = state
+    foundDevice.state = state.toLowerCase()
   } catch (error) {
     console.warn(error)
   }

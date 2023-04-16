@@ -57,25 +57,25 @@ export default [
     state: "off",
   },
   // Bathroom
-  // {
-  //   type: "light",
-  //   topic: "light/bathroom",
-  //   position: {
-  //     x: -0.8,
-  //     y : ceilingHeight,
-  //     z: -0.7,
-  //   },
-  //   state: "off",
-  // },
+  {
+    type: "light",
+    topic: "light/bathroom",
+    position: {
+      x: -0.8,
+      y: ceilingHeight,
+      z: -0.7,
+    },
+    state: "off",
+  },
   // Toilet
-  // {
-  //   type: "light",
-  //   topic: "light/toilet",
-  //   position: {
-  //     x: -0.7,
-  //     y : ceilingHeight,
-  //     z: -1.4,
-  //   },
-  //   state: "off",
-  // },
+  {
+    type: "light",
+    topic: "light/toilet",
+    position: {
+      x: -0.7,
+      y: ceilingHeight,
+      z: -1.4,
+    },
+    state: "off",
+  },
 ]
