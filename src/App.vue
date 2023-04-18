@@ -9,7 +9,7 @@
         :orbit-ctrl="{ enableDamping: false }"
         resize="true"
       >
-        <Camera :position="{ x: 2, y: 3, z: 2 }" />
+        <Camera :position="{ x: 5, y: 9, z: 5 }" />
         <Scene background="#444444">
           <AmbientLight color="#ffffff" :intensity="0.2" />
 
@@ -19,7 +19,7 @@
             :key="index"
           />
 
-          <GltfModel src="assets/apartment.gltf" @load="onModelLoaded" />
+          <GltfModel src="assets/apartment_scan_2.glb" @load="onModelLoaded" />
         </Scene>
       </Renderer>
     </v-main>
@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { ref, computed } from "vue"
 import { client as mqttClient } from "@/mqtt"
 import CeilingLight from "./components/CeilingLight.vue"
 import LoginDialog from "./components/LoginDialog.vue"
@@ -65,17 +65,17 @@ mqttClient.onConnectionLost = (responseObject) => {
 }
 
 const onModelLoaded = (model) => {
-  model.scene.traverse((object) => {
-    // Shadows
-    if (object.isMesh) {
-      const asArray = Array.isArray(object.material)
-        ? object.material
-        : [object.material]
-      asArray.forEach((mat) => (mat.metalness = 0))
-      object.castShadow = true
-      object.receiveShadow = true
-    }
-  })
+  // model.scene.traverse((object) => {
+  //   // Shadows
+  //   if (object.isMesh) {
+  //     const asArray = Array.isArray(object.material)
+  //       ? object.material
+  //       : [object.material]
+  //     asArray.forEach((mat) => (mat.metalness = 0))
+  //     object.castShadow = true
+  //     object.receiveShadow = true
+  //   }
+  // })
 }
 
 const mqttSubscribe = () => {
