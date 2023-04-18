@@ -2,7 +2,7 @@
   <Sphere
     ref="box"
     :position="{ ...device.position }"
-    :scale="{ x: 0.08, y: 0.08, z: 0.08 }"
+    :scale="{ x: 0.15, y: 0.15, z: 0.15 }"
     @click="toggle()"
   >
     <BasicMaterial :color="on ? '#ffea00' : '#5c5400'" />
