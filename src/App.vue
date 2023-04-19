@@ -28,7 +28,7 @@
             <AmbientLight color="#ffffff" :intensity="0.2" />
 
             <GltfModel
-              src="assets/apartment_scan_2.glb"
+              src="assets/model/model.glb"
               @load="onModelLoaded"
               @progress="onModelProgress"
             />
@@ -48,17 +48,23 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue"
+import { ref, onMounted } from "vue"
 import { client as mqttClient } from "@/mqtt"
 import CeilingLight from "./components/CeilingLight.vue"
 import LoginDialog from "./components/LoginDialog.vue"
-import deviceList from "./devices"
 import { useMqttStore } from "@/stores/mqtt"
+import * as YAML from "yaml"
 
 const store = useMqttStore()
-const devices = ref(deviceList)
+const devices = ref([])
 const modelLoaded = ref(false)
 const modelLoadingProgress = ref(0)
+
+onMounted(async () => {
+  const response = await fetch("assets/config/config.yml")
+  const data = await response.text()
+  devices.value = YAML.parse(data)
+})
 
 mqttClient.onConnected = () => {
   console.log("[MQTT] connected")
