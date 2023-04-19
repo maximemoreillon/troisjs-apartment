@@ -1,27 +1,48 @@
 <template>
   <v-app>
     <v-main>
-      <LoginDialog v-if="!store.connected" />
-      <Renderer
-        ref="renderer"
-        antialias
-        shadow
-        :orbit-ctrl="{ enableDamping: false }"
-        resize="true"
-      >
-        <Camera :position="{ x: 5, y: 9, z: 5 }" />
-        <Scene background="#444444">
-          <AmbientLight color="#ffffff" :intensity="0.2" />
+      <LoginDialog :visible="!store.connected" />
 
-          <CeilingLight
-            v-for="(device, index) in devices"
-            :device="device"
-            :key="index"
-          />
+      <template v-if="store.connected">
+        <v-dialog :model-value="!modelLoaded" max-width="30rem" persistent>
+          <v-card class="py-10 px-4">
+            <v-row justify="center">
+              <v-col cols="auto"> Loading model... </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-progress-linear :model-value="modelLoadingProgress" />
+              </v-col>
+            </v-row>
+          </v-card>
+        </v-dialog>
+        <Renderer
+          ref="renderer"
+          antialias
+          shadow
+          :orbit-ctrl="{ enableDamping: false }"
+          resize="true"
+        >
+          <Camera :position="{ x: 5, y: 9, z: 5 }" />
+          <Scene background="#444444">
+            <AmbientLight color="#ffffff" :intensity="0.2" />
 
-          <GltfModel src="assets/apartment_scan_2.glb" @load="onModelLoaded" />
-        </Scene>
-      </Renderer>
+            <GltfModel
+              src="assets/apartment_scan_2.glb"
+              @load="onModelLoaded"
+              @progress="onModelProgress"
+            />
+
+            <template v-if="modelLoaded">
+              <CeilingLight
+                v-for="(device, index) in devices"
+                :device="device"
+                :key="index"
+              />
+            </template>
+          </Scene>
+        </Renderer>
+      </template>
     </v-main>
   </v-app>
 </template>
@@ -36,6 +57,8 @@ import { useMqttStore } from "@/stores/mqtt"
 
 const store = useMqttStore()
 const devices = ref(deviceList)
+const modelLoaded = ref(false)
+const modelLoadingProgress = ref(0)
 
 mqttClient.onConnected = () => {
   console.log("[MQTT] connected")
@@ -65,17 +88,11 @@ mqttClient.onConnectionLost = (responseObject) => {
 }
 
 const onModelLoaded = (model) => {
-  // model.scene.traverse((object) => {
-  //   // Shadows
-  //   if (object.isMesh) {
-  //     const asArray = Array.isArray(object.material)
-  //       ? object.material
-  //       : [object.material]
-  //     asArray.forEach((mat) => (mat.metalness = 0))
-  //     object.castShadow = true
-  //     object.receiveShadow = true
-  //   }
-  // })
+  modelLoaded.value = true
+}
+
+const onModelProgress = ({ loaded, total }) => {
+  modelLoadingProgress.value = (100 * loaded) / total
 }
 
 const mqttSubscribe = () => {

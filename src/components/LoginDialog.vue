@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="dialog" max-width="30rem" persistent>
+  <v-dialog :model-value="visible" max-width="30rem" persistent>
     <v-card>
       <v-card-text>
         <v-form class="text-center" @submit.prevent="login()">
@@ -16,7 +16,12 @@
             v-model="password"
           />
 
-          <v-btn type="submit" :loading="loading" prepend-icon="mdi-login">
+          <v-btn
+            type="submit"
+            :loading="loading"
+            prepend-icon="mdi-login"
+            variant="text"
+          >
             Login
           </v-btn>
         </v-form>
@@ -32,10 +37,12 @@ import { useMqttStore } from "@/stores/mqtt"
 
 const store = useMqttStore()
 
+const props = defineProps({
+  visible: Boolean,
+})
 const username = ref("")
 const password = ref("")
 const loading = ref(false)
-const dialog = ref(true)
 
 onMounted(() => {
   if (!store.connected) connect()
@@ -73,7 +80,6 @@ const connect = () => {
 
 const onSuccess = () => {
   loading.value = false
-  dialog.value = false
 }
 
 const onFailure = () => {
