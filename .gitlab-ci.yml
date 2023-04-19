@@ -3,7 +3,7 @@ stages:
   - deploy
 
 variables:
-  APPLICATION_NAME: 3d-apartment-control
+  APPLICATION_NAME: threejs-apartment-control
   CONTAINER_IMAGE: ${DOCKER_HUB_USERNAME}/${APPLICATION_NAME}
   CONTAINER_IMAGE_TAGGED: ${DOCKER_HUB_USERNAME}/${APPLICATION_NAME}:${CI_COMMIT_SHORT_SHA}
   K8S_INGRESS_HOST: 3dapartment.home.maximemoreillon.com
